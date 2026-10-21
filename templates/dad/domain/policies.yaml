@@ -1,0 +1,14 @@
+# Phase 4b · Policies
+# Who can do what. Validated by schemas/policies.schema.json.
+# Each entry needs a backend test whose name starts with its id.
+#
+# action: query.<field> | mutation.<field>
+# allow: roles from the "Actors and roles" table in domain.md
+# scope: optional row-level filter, written against `viewer`
+
+- id: POL-ENTITY-001
+  action: mutation.doSomething
+  allow: [role_a]
+  error:
+    code: NOT_AUTHORIZED
+    graphql_type: NotAuthorized

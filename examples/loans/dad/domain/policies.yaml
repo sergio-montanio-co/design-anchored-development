@@ -1,0 +1,41 @@
+# Phase 4b · Policies · Loans example
+
+- id: POL-LOAN-001
+  action: mutation.requestLoan
+  allow: [borrower]
+  error: { code: NOT_AUTHORIZED, graphql_type: NotAuthorized }
+
+- id: POL-LOAN-002
+  action: mutation.approveLoan
+  allow: [ops_analyst, ops_manager]
+  error: { code: NOT_AUTHORIZED, graphql_type: NotAuthorized }
+  source: design annotation, OpsQueue / approve
+
+- id: POL-LOAN-003
+  action: mutation.rejectLoan
+  allow: [ops_analyst, ops_manager]
+  error: { code: NOT_AUTHORIZED, graphql_type: NotAuthorized }
+
+- id: POL-LOAN-004
+  action: mutation.disburseLoan
+  allow: [ops_manager]
+  error: { code: NOT_AUTHORIZED, graphql_type: NotAuthorized }
+  source: design annotation, OpsQueue / disburse
+
+- id: POL-LOAN-005
+  action: query.loans
+  allow: [borrower, ops_analyst, ops_manager]
+  scope: "borrower: loan.borrowerId == viewer.id; ops roles: all"
+  source: design annotation, MyLoans / default
+
+- id: POL-PAYMENT-001
+  action: mutation.makePayment
+  allow: [borrower]
+  scope: loan.borrowerId == viewer.id
+  error: { code: NOT_AUTHORIZED, graphql_type: NotAuthorized }
+
+- id: POL-LOAN-006
+  action: mutation.liquidateLoan
+  allow: [borrower, ops_manager]
+  scope: "borrower: loan.borrowerId == viewer.id"
+  error: { code: NOT_AUTHORIZED, graphql_type: NotAuthorized }

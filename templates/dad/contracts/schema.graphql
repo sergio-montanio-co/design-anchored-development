@@ -1,0 +1,31 @@
+# Phase 3 · GraphQL contract
+# Generated from domain/domain.md. Error types are added by Phase 4 and 4b.
+# Conventions: see "GraphQL conventions" in dad/rules.md.
+
+scalar UUID
+scalar DateTime
+scalar Decimal
+
+interface Error {
+  code: String!
+  message: String!
+}
+
+type NotAuthorized implements Error {
+  code: String!
+  message: String!
+}
+
+type Money {
+  amount: Decimal!
+  currency: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+type Query {
+  _dadPlaceholder: Boolean
+}

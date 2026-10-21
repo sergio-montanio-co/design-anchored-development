@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/design-anchored-development/schemas/invariants.schema.json",
+  "title": "DAD invariants",
+  "description": "Business rules that hold for every caller. One entry per rule.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "entity", "kind", "rule", "enforced_in", "error"],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^INV-[A-Z0-9]+-[0-9]{3}$",
+        "description": "Stable ID, e.g. INV-LOAN-003. Never reused."
+      },
+      "entity": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Za-z0-9]*$",
+        "description": "Entity name as written in domain.md."
+      },
+      "kind": {
+        "enum": ["field", "state_transition", "cross_entity", "temporal"]
+      },
+      "rule": {
+        "type": "string",
+        "minLength": 10,
+        "description": "Plain language, reviewable by a domain expert."
+      },
+      "enforced_in": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["backend", "frontend"],
+        "properties": {
+          "backend": { "const": "mandatory" },
+          "frontend": { "enum": ["ux_only", "none"] }
+        }
+      },
+      "error": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "graphql_type"],
+        "properties": {
+          "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+          "graphql_type": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" }
+        }
+      },
+      "examples": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "valid": { "type": "object" },
+          "invalid": { "type": "object" }
+        }
+      },
+      "source": {
+        "type": "string",
+        "description": "Optional: where the rule came from (design annotation, Q-ID, person)."
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+# Screen: LoanDetail (web)
+query LoanDetail($id: UUID!) {
+  loan(id: $id) {
+    id
+    status
+    pendingBalance { amount currency }
+    installments {
+      number
+      amount { amount currency }
+      dueDate
+      paidAt
+    }
+  }
+}
+
+mutation PayInstallment($loanId: UUID!, $amount: MoneyInput!) {
+  makePayment(loanId: $loanId, amount: $amount) {
+    __typename
+    ... on Payment { id receivedAt }
+    ... on Error { code message }
+    ... on PaymentExceedsBalance { pendingBalance { amount currency } }
+  }
+}
+
+mutation LiquidateLoan($id: UUID!) {
+  liquidateLoan(id: $id) {
+    __typename
+    ... on Loan { id status }
+    ... on Error { code message }
+  }
+}

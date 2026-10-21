@@ -1,0 +1,20 @@
+{
+  "name": "design-anchored-development",
+  "version": "0.1.0",
+  "description": "Design-Anchored Development (DAD): an AI-assisted methodology from UX design to domain, GraphQL contract, invariants, policies, backend and N frontends.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Sergio Montaño",
+  "bin": { "dad-check": "scripts/dad-check.mjs" },
+  "scripts": {
+    "check": "node scripts/dad-check.mjs",
+    "check:example": "node scripts/dad-check.mjs --dad examples/loans/dad --tests examples/loans/apps/api/test"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "graphql": "^16.9.0",
+    "yaml": "^2.6.0"
+  },
+  "engines": { "node": ">=20" },
+  "keywords": ["ai", "agents", "methodology", "graphql", "domain-driven-design", "contract-first", "spec-driven-development", "claude-code"]
+}

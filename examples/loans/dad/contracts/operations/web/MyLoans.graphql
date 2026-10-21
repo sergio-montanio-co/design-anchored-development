@@ -1,0 +1,15 @@
+# Screen: MyLoans (web)
+query MyLoans($after: String) {
+  loans(first: 20, after: $after) {
+    edges {
+      node {
+        id
+        principal { amount currency }
+        pendingBalance { amount currency }
+        status
+        nextInstallment { dueDate }
+      }
+    }
+    pageInfo { hasNextPage endCursor }
+  }
+}

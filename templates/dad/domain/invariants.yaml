@@ -1,0 +1,21 @@
+# Phase 4 · Invariants
+# Business rules that hold for every caller. Validated by schemas/invariants.schema.json.
+# Each entry needs a backend test whose name starts with its id.
+#
+# kind: field | state_transition | cross_entity | temporal
+# enforced_in.backend: mandatory
+# enforced_in.frontend: ux_only | none
+
+- id: INV-ENTITY-001
+  entity: Entity
+  kind: field
+  rule: Describe the rule in plain language
+  enforced_in:
+    backend: mandatory
+    frontend: ux_only
+  error:
+    code: ERROR_CODE
+    graphql_type: ErrorType
+  examples:
+    valid: {}
+    invalid: {}

@@ -1,0 +1,91 @@
+# Phase 4 · Invariants · Loans example
+
+- id: INV-LOAN-001
+  entity: Loan
+  kind: field
+  rule: Principal must be between 1,000.00 and 200,000.00 MXN
+  enforced_in:
+    backend: mandatory
+    frontend: ux_only
+  error:
+    code: PRINCIPAL_OUT_OF_RANGE
+    graphql_type: PrincipalOutOfRange
+  examples:
+    valid: { principal: 12500.00 }
+    invalid: { principal: 500.00 }
+  source: domain.md, Loan.principal
+
+- id: INV-LOAN-002
+  entity: Loan
+  kind: state_transition
+  rule: Payments are accepted only while the loan is disbursed
+  enforced_in:
+    backend: mandatory
+    frontend: ux_only
+  error:
+    code: LOAN_NOT_DISBURSED
+    graphql_type: LoanNotDisbursed
+  examples:
+    valid: { status: disbursed }
+    invalid: { status: approved }
+  source: Q-001
+
+- id: INV-LOAN-003
+  entity: Loan
+  kind: state_transition
+  rule: Cannot move to liquidated while pendingBalance > 0
+  enforced_in:
+    backend: mandatory
+    frontend: ux_only
+  error:
+    code: LOAN_HAS_PENDING_BALANCE
+    graphql_type: LoanHasPendingBalance
+  examples:
+    valid: { pendingBalance: 0, transition: "disbursed -> liquidated" }
+    invalid: { pendingBalance: 150.00, transition: "disbursed -> liquidated" }
+  source: design annotation, LoanDetail / disbursed-paid
+
+- id: INV-LOAN-004
+  entity: Loan
+  kind: state_transition
+  rule: Status only moves along the state machine in domain.md; rejected and liquidated are final
+  enforced_in:
+    backend: mandatory
+    frontend: ux_only
+  error:
+    code: INVALID_LOAN_TRANSITION
+    graphql_type: InvalidLoanTransition
+  examples:
+    valid: { transition: "requested -> approved" }
+    invalid: { transition: "rejected -> approved" }
+  source: Q-002
+
+- id: INV-LOAN-005
+  entity: Loan
+  kind: field
+  rule: Rejecting a loan requires a non-empty reason
+  enforced_in:
+    backend: mandatory
+    frontend: ux_only
+  error:
+    code: REJECTION_REASON_REQUIRED
+    graphql_type: RejectionReasonRequired
+  examples:
+    valid: { reason: "Income could not be verified" }
+    invalid: { reason: "" }
+  source: design annotation, OpsQueue / reject
+
+- id: INV-PAYMENT-001
+  entity: Payment
+  kind: cross_entity
+  rule: A payment amount must be greater than 0 and cannot exceed the loan's pending balance
+  enforced_in:
+    backend: mandatory
+    frontend: ux_only
+  error:
+    code: PAYMENT_EXCEEDS_BALANCE
+    graphql_type: PaymentExceedsBalance
+  examples:
+    valid: { amount: 1095.13, pendingBalance: 4380.50 }
+    invalid: { amount: 5000.00, pendingBalance: 4380.50 }
+  source: design annotation, PaymentConfirm / error

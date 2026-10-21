@@ -1,0 +1,110 @@
+# Phase 3 · GraphQL contract · Loans example
+# Generated from domain/domain.md; error types added by Phase 4 and 4b.
+
+scalar UUID
+scalar Date
+scalar DateTime
+scalar Decimal
+
+# ---------- Errors ----------
+
+interface Error {
+  code: String!
+  message: String!
+}
+
+type NotAuthorized implements Error { code: String! message: String! }
+type PrincipalOutOfRange implements Error { code: String! message: String! min: Money! max: Money! }
+type LoanNotDisbursed implements Error { code: String! message: String! status: LoanStatus! }
+type LoanHasPendingBalance implements Error { code: String! message: String! pendingBalance: Money! }
+type InvalidLoanTransition implements Error { code: String! message: String! from: LoanStatus! to: LoanStatus! }
+type RejectionReasonRequired implements Error { code: String! message: String! }
+type PaymentExceedsBalance implements Error { code: String! message: String! pendingBalance: Money! }
+
+# ---------- Domain ----------
+
+type Money {
+  amount: Decimal!
+  currency: String!
+}
+
+enum LoanStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  DISBURSED
+  LIQUIDATED
+}
+
+type Loan {
+  id: UUID!
+  borrowerId: UUID!
+  principal: Money!
+  pendingBalance: Money!
+  status: LoanStatus!
+  "Present only when status = REJECTED."
+  rejectionReason: String
+  createdAt: DateTime!
+  installments: [Installment!]!
+  "First unpaid installment; absent when fully paid."
+  nextInstallment: Installment
+  payments: [Payment!]!
+}
+
+type Installment {
+  id: UUID!
+  number: Int!
+  amount: Money!
+  dueDate: Date!
+  "Absent while unpaid."
+  paidAt: DateTime
+}
+
+type Payment {
+  id: UUID!
+  amount: Money!
+  receivedAt: DateTime!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+type LoanEdge {
+  cursor: String!
+  node: Loan!
+}
+
+type LoanConnection {
+  edges: [LoanEdge!]!
+  pageInfo: PageInfo!
+}
+
+# ---------- Operations ----------
+
+input MoneyInput {
+  amount: Decimal!
+  currency: String!
+}
+
+type Query {
+  loans(status: LoanStatus, first: Int = 20, after: String): LoanConnection!
+  loan(id: UUID!): Loan
+}
+
+union RequestLoanResult = Loan | PrincipalOutOfRange | NotAuthorized
+union ApproveLoanResult = Loan | InvalidLoanTransition | NotAuthorized
+union RejectLoanResult = Loan | InvalidLoanTransition | RejectionReasonRequired | NotAuthorized
+union DisburseLoanResult = Loan | InvalidLoanTransition | NotAuthorized
+union MakePaymentResult = Payment | LoanNotDisbursed | PaymentExceedsBalance | NotAuthorized
+union LiquidateLoanResult = Loan | LoanHasPendingBalance | InvalidLoanTransition | NotAuthorized
+
+type Mutation {
+  requestLoan(principal: MoneyInput!): RequestLoanResult!
+  approveLoan(id: UUID!): ApproveLoanResult!
+  rejectLoan(id: UUID!, reason: String!): RejectLoanResult!
+  disburseLoan(id: UUID!): DisburseLoanResult!
+  makePayment(loanId: UUID!, amount: MoneyInput!): MakePaymentResult!
+  liquidateLoan(id: UUID!): LiquidateLoanResult!
+}
