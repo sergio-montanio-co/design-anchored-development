@@ -1,0 +1,24 @@
+# Screen: Company record · Emails tab + Email composer (web) · 102373:15693, 110059:366941
+query CompanyEmails($id: ID!, $after: String) {
+  company(id: $id) {
+    id
+    name
+    emailThreads(first: 20, after: $after) {
+      edges {
+        node {
+          id
+          emails { id from to cc subject text sentAt visibility owner { id name } }
+        }
+      }
+      pageInfo { hasNextPage endCursor }
+    }
+  }
+}
+
+mutation SendEmail($input: SendEmailInput!) {
+  sendEmail(input: $input) {
+    __typename
+    ... on Email { id sentAt }
+    ... on Error { code message }
+  }
+}

@@ -1,0 +1,54 @@
+# Screen: Company record · Record & relations + timeline (web)
+# 102308:204799, 102308:203344, 102308:202859, 102308:201889, 102308:204314, 102308:203829, 102308:202374
+query CompanyRecord($id: ID!, $after: String) {
+  company(id: $id) {
+    id
+    name
+    url
+    address
+    accountOwner { id name avatar }
+    icp
+    arr { amount currency }
+    linkedin { url label }
+    twitter { url label }
+    mainContact { id name avatar }
+    employees
+    createdBy { source name }
+    createdAt
+    opportunities(first: 5) { edges { node { id name } } }
+    people(first: 5) {
+      edges { node { id name avatar jobTitle email } }
+      pageInfo { hasNextPage endCursor }
+    }
+    activities(first: 20, after: $after) {
+      edges {
+        node {
+          id
+          kind
+          actor { source name teamMember { id name avatar } }
+          happenedAt
+          details
+          subject {
+            __typename
+            ... on Note { id title }
+            ... on Task { id title status }
+            ... on Email { id subject from to visibility owner { name } }
+            ... on CalendarEvent { id eventTitle: title startsAt endsAt visibility }
+            ... on Company { id name }
+            ... on Person { id name }
+            ... on Opportunity { id name }
+          }
+        }
+      }
+      pageInfo { hasNextPage endCursor }
+    }
+  }
+}
+
+mutation AddCompanyToFavorites($id: ID!) {
+  addFavorite(recordId: $id) {
+    __typename
+    ... on Favorite { id folder }
+    ... on Error { code message }
+  }
+}

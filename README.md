@@ -75,6 +75,13 @@ npm run check:example
 # DAD check: 6 invariants, 7 policies, 0 errors, 0 warnings
 ```
 
+## Field test
+
+DAD has been run on two public Figma files nobody prepared for it ([full write-up](docs/field-test-2026-10.md)):
+
+- **[Twenty CRM](examples/twenty-figma)**, run blind and graded against Twenty's source code: all 11 user-facing entities and 44 of 55 core fields (80%) recovered, no field that contradicts the code, and every structural difference already raised as an open question.
+- **[A Figma Community loan kit](examples/loan-kit-figma)**: passed 0 of 16 Phase 0 checklist items (5 partial) and produced 54 open questions, including example numbers that do not add up and a repayment flow listed in the sitemap but never designed.
+
 ## Repository layout
 
 ```text

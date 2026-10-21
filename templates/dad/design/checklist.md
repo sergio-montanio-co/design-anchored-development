@@ -11,6 +11,8 @@ Owned by the designer. Complete it before handing the file to Phase 1. The Figma
 - [ ] Amounts show currency and decimals (`$12,500.00 MXN`)
 - [ ] Dates show the real format users will see
 - [ ] Long values are tested (long names, big amounts, empty optional fields)
+- [ ] Example numbers are consistent with each other (totals, rates, fees, instalments) *(lint)*
+- [ ] Text layers are named after the data they show, not their text style ("Headline")
 
 ## Naming
 

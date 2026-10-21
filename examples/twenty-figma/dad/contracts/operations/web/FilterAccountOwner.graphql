@@ -1,0 +1,7 @@
+# Screen: Filter Account Owner menu (web) · 93302:194332
+query FilterAccountOwner($search: String) {
+  teamMembers(search: $search, first: 20) {
+    edges { node { id name avatar } }
+    pageInfo { hasNextPage endCursor }
+  }
+}

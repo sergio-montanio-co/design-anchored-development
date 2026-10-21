@@ -1,0 +1,29 @@
+# Screen: Index · People table (web) · 102294:353645
+query PeopleIndex($viewId: ID, $after: String) {
+  views(objectName: "People") { id name }
+  people(viewId: $viewId, first: 50, after: $after) {
+    edges {
+      node {
+        id
+        name
+        avatar
+        email
+        company { id name }
+        phone
+        jobTitle
+        linkedin { url label }
+        twitter { url label }
+        createdAt
+      }
+    }
+    pageInfo { hasNextPage endCursor }
+  }
+}
+
+mutation CreatePerson($input: PersonInput!) {
+  createPerson(input: $input) {
+    __typename
+    ... on Person { id name }
+    ... on Error { code message }
+  }
+}

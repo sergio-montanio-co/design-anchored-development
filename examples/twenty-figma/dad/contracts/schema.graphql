@@ -1,0 +1,373 @@
+# Phase 3 · GraphQL contract · Twenty (Figma, blind run)
+# Generated from domain/domain.md. No invariants or policies exist yet,
+# so every mutation union holds the entity plus NotAuthorized only.
+# Conventions: see "GraphQL conventions" in dad/rules.md.
+
+scalar DateTime
+scalar Decimal
+"Block document (headings, paragraphs, lists, quotes, images, dividers, @mentions)."
+scalar RichText
+
+# ---------- Errors ----------
+
+interface Error {
+  code: String!
+  message: String!
+}
+
+type NotAuthorized implements Error {
+  code: String!
+  message: String!
+}
+
+# ---------- Value types ----------
+
+type Money {
+  amount: Decimal!
+  currency: String!
+}
+
+"Only the label is ever shown in the design (Q-007)."
+type Link {
+  url: String!
+  label: String
+}
+
+enum ActorSource {
+  TEAM_MEMBER
+  CALENDAR
+  EMAIL
+  API_KEY
+  WORKFLOW
+  SYSTEM
+  IMPORT
+}
+
+type Actor {
+  source: ActorSource!
+  name: String!
+  "Present when the source is a team member or something acting for one (calendar, email)."
+  teamMember: TeamMember
+}
+
+enum Visibility {
+  SHARED
+  NOT_SHARED
+}
+
+enum TaskStatus {
+  TODO
+  DONE
+}
+
+enum ActivityKind {
+  CREATED
+  EDITED
+  UPDATED
+  LINKED
+  DELETED
+  COMMENTED
+  COMPLETED
+  ASSIGNED
+  IMPORTED
+  CREATED_FROM_EMAILS
+  EMAIL_RECEIVED
+  EMAIL_SENT
+  EVENT_INVITED
+}
+
+# ---------- Domain ----------
+
+type TeamMember {
+  id: ID!
+  name: String!
+  avatar: String
+}
+
+type Company {
+  id: ID!
+  name: String!
+  url: String
+  address: String
+  accountOwner: TeamMember
+  icp: Boolean
+  arr: Money
+  linkedin: Link
+  twitter: Link
+  mainContact: Person
+  employees: Int
+  createdBy: Actor!
+  createdAt: DateTime!
+  people(first: Int = 20, after: String): PersonConnection!
+  opportunities(first: Int = 20, after: String): OpportunityConnection!
+  activities(first: Int = 20, after: String): ActivityConnection!
+  notes(first: Int = 20, after: String): NoteConnection!
+  tasks(first: Int = 20, after: String): TaskConnection!
+  files(first: Int = 20, after: String): FileConnection!
+  emailThreads(first: Int = 20, after: String): EmailThreadConnection!
+  calendarEvents(first: Int = 20, after: String): CalendarEventConnection!
+}
+
+type Person {
+  id: ID!
+  name: String!
+  avatar: String
+  email: String
+  company: Company
+  phone: String
+  jobTitle: String
+  linkedin: Link
+  twitter: Link
+  createdAt: DateTime!
+}
+
+type Opportunity {
+  id: ID!
+  name: String!
+  company: Company!
+}
+
+type Task {
+  id: ID!
+  title: String!
+  body: RichText
+  status: TaskStatus!
+  assignee: TeamMember
+  companies: [Company!]!
+}
+
+type Note {
+  id: ID!
+  title: String!
+  body: RichText
+  companies: [Company!]!
+}
+
+type File {
+  id: ID!
+  name: String!
+  company: Company!
+}
+
+type EmailThread {
+  id: ID!
+  emails: [Email!]!
+  companies: [Company!]!
+}
+
+type Email {
+  id: ID!
+  from: String!
+  to: [String!]!
+  cc: [String!]!
+  bcc: [String!]!
+  subject: String
+  "Absent when visibility = NOT_SHARED."
+  text: RichText
+  sentAt: DateTime!
+  visibility: Visibility!
+  owner: TeamMember
+}
+
+type CalendarEvent {
+  id: ID!
+  "Absent when visibility = NOT_SHARED."
+  title: String
+  startsAt: DateTime!
+  endsAt: DateTime!
+  isFullDay: Boolean!
+  repeat: String
+  timeZone: String
+  guests: [String!]!
+  location: String
+  sendInvitations: Boolean
+  hasVideoCall: Boolean
+  calendar: String
+  visibility: Visibility!
+  companies: [Company!]!
+}
+
+union ActivitySubject = Note | Task | Email | CalendarEvent | Company | Person | Opportunity
+
+type Activity {
+  id: ID!
+  kind: ActivityKind!
+  actor: Actor!
+  happenedAt: DateTime!
+  company: Company!
+  subject: ActivitySubject
+  "Free text such as '3 fields', 'A → B', 'with 230 others'."
+  details: String
+}
+
+type View {
+  id: ID!
+  name: String!
+  objectName: String!
+}
+
+union FavoriteRecord = Company | Person | Task | View
+
+type Favorite {
+  id: ID!
+  record: FavoriteRecord!
+  folder: String
+}
+
+# ---------- Pagination ----------
+
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+type CompanyEdge { cursor: String! node: Company! }
+type CompanyConnection { edges: [CompanyEdge!]! pageInfo: PageInfo! }
+type PersonEdge { cursor: String! node: Person! }
+type PersonConnection { edges: [PersonEdge!]! pageInfo: PageInfo! }
+type OpportunityEdge { cursor: String! node: Opportunity! }
+type OpportunityConnection { edges: [OpportunityEdge!]! pageInfo: PageInfo! }
+type TaskEdge { cursor: String! node: Task! }
+type TaskConnection { edges: [TaskEdge!]! pageInfo: PageInfo! }
+type NoteEdge { cursor: String! node: Note! }
+type NoteConnection { edges: [NoteEdge!]! pageInfo: PageInfo! }
+type FileEdge { cursor: String! node: File! }
+type FileConnection { edges: [FileEdge!]! pageInfo: PageInfo! }
+type EmailThreadEdge { cursor: String! node: EmailThread! }
+type EmailThreadConnection { edges: [EmailThreadEdge!]! pageInfo: PageInfo! }
+type CalendarEventEdge { cursor: String! node: CalendarEvent! }
+type CalendarEventConnection { edges: [CalendarEventEdge!]! pageInfo: PageInfo! }
+type ActivityEdge { cursor: String! node: Activity! }
+type ActivityConnection { edges: [ActivityEdge!]! pageInfo: PageInfo! }
+type TeamMemberEdge { cursor: String! node: TeamMember! }
+type TeamMemberConnection { edges: [TeamMemberEdge!]! pageInfo: PageInfo! }
+
+# ---------- Queries ----------
+
+input CompanyFilter {
+  accountOwnerIds: [ID!]
+}
+
+type Query {
+  companies(viewId: ID, filter: CompanyFilter, first: Int = 20, after: String): CompanyConnection!
+  company(id: ID!): Company
+  people(viewId: ID, first: Int = 20, after: String): PersonConnection!
+  person(id: ID!): Person
+  tasks(viewId: ID, first: Int = 20, after: String): TaskConnection!
+  task(id: ID!): Task
+  note(id: ID!): Note
+  emailThread(id: ID!): EmailThread
+  calendarEvent(id: ID!): CalendarEvent
+  teamMembers(search: String, first: Int = 20, after: String): TeamMemberConnection!
+  views(objectName: String!): [View!]!
+  favorites: [Favorite!]!
+}
+
+# ---------- Mutations ----------
+
+input MoneyInput {
+  amount: Decimal!
+  currency: String!
+}
+
+input LinkInput {
+  url: String!
+  label: String
+}
+
+input CompanyInput {
+  name: String
+  url: String
+  address: String
+  accountOwnerId: ID
+  icp: Boolean
+  arr: MoneyInput
+  linkedin: LinkInput
+  twitter: LinkInput
+  mainContactId: ID
+  employees: Int
+}
+
+input PersonInput {
+  name: String
+  email: String
+  companyId: ID
+  phone: String
+  jobTitle: String
+  linkedin: LinkInput
+  twitter: LinkInput
+}
+
+input TaskInput {
+  title: String
+  body: RichText
+  companyIds: [ID!]
+}
+
+input NoteInput {
+  title: String
+  body: RichText
+  companyIds: [ID!]
+}
+
+input SendEmailInput {
+  "Set when replying inside an existing thread."
+  threadId: ID
+  from: String!
+  to: [String!]!
+  cc: [String!]
+  bcc: [String!]
+  subject: String
+  text: RichText
+}
+
+input CalendarEventInput {
+  title: String!
+  startsAt: DateTime!
+  endsAt: DateTime!
+  isFullDay: Boolean!
+  repeat: String
+  timeZone: String
+  guests: [String!]
+  location: String
+  sendInvitations: Boolean
+  hasVideoCall: Boolean
+  calendar: String
+  companyIds: [ID!]
+}
+
+union CreateCompanyResult = Company | NotAuthorized
+union UpdateCompanyResult = Company | NotAuthorized
+union CreatePersonResult = Person | NotAuthorized
+union UpdatePersonResult = Person | NotAuthorized
+union CreateTaskResult = Task | NotAuthorized
+union UpdateTaskResult = Task | NotAuthorized
+union CompleteTaskResult = Task | NotAuthorized
+union AssignTaskResult = Task | NotAuthorized
+union DeleteTaskResult = Task | NotAuthorized
+union CreateNoteResult = Note | NotAuthorized
+union UpdateNoteResult = Note | NotAuthorized
+union DeleteNoteResult = Note | NotAuthorized
+union SendEmailResult = Email | NotAuthorized
+union CreateCalendarEventResult = CalendarEvent | NotAuthorized
+union RenameFileResult = File | NotAuthorized
+union AddFavoriteResult = Favorite | NotAuthorized
+
+type Mutation {
+  createCompany(input: CompanyInput!): CreateCompanyResult!
+  updateCompany(id: ID!, input: CompanyInput!): UpdateCompanyResult!
+  createPerson(input: PersonInput!): CreatePersonResult!
+  updatePerson(id: ID!, input: PersonInput!): UpdatePersonResult!
+  createTask(input: TaskInput!): CreateTaskResult!
+  updateTask(id: ID!, input: TaskInput!): UpdateTaskResult!
+  completeTask(id: ID!): CompleteTaskResult!
+  assignTask(id: ID!, assigneeId: ID!): AssignTaskResult!
+  deleteTask(id: ID!): DeleteTaskResult!
+  createNote(input: NoteInput!): CreateNoteResult!
+  updateNote(id: ID!, input: NoteInput!): UpdateNoteResult!
+  deleteNote(id: ID!): DeleteNoteResult!
+  sendEmail(input: SendEmailInput!): SendEmailResult!
+  createCalendarEvent(input: CalendarEventInput!): CreateCalendarEventResult!
+  renameFile(id: ID!, name: String!): RenameFileResult!
+  addFavorite(recordId: ID!, folder: String): AddFavoriteResult!
+}

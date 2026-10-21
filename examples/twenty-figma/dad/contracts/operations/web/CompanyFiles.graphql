@@ -1,0 +1,18 @@
+# Screen: Company record · Files tab (web) · 102373:32363, 102373:43835
+query CompanyFiles($id: ID!, $after: String) {
+  company(id: $id) {
+    id
+    files(first: 20, after: $after) {
+      edges { node { id name } }
+      pageInfo { hasNextPage endCursor }
+    }
+  }
+}
+
+mutation RenameFile($id: ID!, $name: String!) {
+  renameFile(id: $id, name: $name) {
+    __typename
+    ... on File { id name }
+    ... on Error { code message }
+  }
+}

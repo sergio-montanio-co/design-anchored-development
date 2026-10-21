@@ -1,0 +1,27 @@
+# Screen: Calendar event record page + New Event (web) · 111639:924961, 111632:923717, 111639:924416
+query CalendarEventRecord($id: ID!) {
+  calendarEvent(id: $id) {
+    id
+    title
+    startsAt
+    endsAt
+    isFullDay
+    repeat
+    timeZone
+    guests
+    location
+    sendInvitations
+    hasVideoCall
+    calendar
+    visibility
+    companies { id name }
+  }
+}
+
+mutation CreateEvent($input: CalendarEventInput!) {
+  createCalendarEvent(input: $input) {
+    __typename
+    ... on CalendarEvent { id title startsAt endsAt }
+    ... on Error { code message }
+  }
+}

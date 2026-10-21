@@ -66,7 +66,7 @@ An agent can read a Figma file, but it reads what is there, not what the designe
 
 The conventions also help the designer: they force thinking about states and rules that usually surface late, during development.
 
-**Enforcement:** Phase 0 is a human checklist owned by the designer ([`templates/dad/design/checklist.md`](../templates/dad/design/checklist.md)), one of the few deliberately human steps in DAD. A Figma lint plugin then verifies the mechanical parts (layer naming, no lorem ipsum, required state frames per component) before Phase 1 runs, so the agent never starts from a file that fails the checklist.
+**Enforcement:** Phase 0 is a human checklist owned by the designer ([`templates/dad/design/checklist.md`](../templates/dad/design/checklist.md)), one of the few deliberately human steps in DAD. A Figma lint plugin then verifies the mechanical parts (layer naming, no lorem ipsum, required state frames per component, example numbers that are internally consistent) before Phase 1 runs, so the agent never starts from a file that fails the checklist.
 
 ## Phase 1: Design extraction
 
@@ -80,6 +80,12 @@ The inventory lists, per screen:
 - States shown (empty, loading, error, entity states)
 - User actions (buttons, forms, gestures) and where each leads
 - Annotated conditions and rules
+
+Rules for reading the design:
+
+- **Rendered text beats layer names.** When a layer name and the text it renders disagree (a Tasks table named "Company table"), trust the rendered text and record the mismatch.
+- **Contradictions are questions.** Example numbers that do not add up, two frames that disagree, a sitemap entry with no screen: each becomes an open question, because each hides a business rule.
+- **Mind the read quota.** Figma's MCP server limits reads by plan and seat (a Starter plan with a View seat allows 20 reads a month). For a large file, use a Dev or Full seat, or export the frames as images and give the agent those instead.
 
 **The most important rule of this phase:** when something is ambiguous, the agent writes a question instead of guessing. A wrong assumption here propagates into the domain, the contract, the invariants and every generated client. The open-questions file is what keeps the whole pipeline honest.
 

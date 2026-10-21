@@ -1,0 +1,17 @@
+# Screen: Note side panel (web) · 36824:90523, 36824:90557
+query NoteSidePanel($id: ID!) {
+  note(id: $id) {
+    id
+    title
+    body
+    companies { id name }
+  }
+}
+
+mutation EditNote($id: ID!, $input: NoteInput!) {
+  updateNote(id: $id, input: $input) {
+    __typename
+    ... on Note { id title body }
+    ... on Error { code message }
+  }
+}

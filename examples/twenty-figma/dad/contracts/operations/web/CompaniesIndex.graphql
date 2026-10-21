@@ -1,0 +1,41 @@
+# Screen: Index · Companies table (web) · 102294:349175, 102294:346940
+query CompaniesIndex($viewId: ID, $filter: CompanyFilter, $after: String) {
+  views(objectName: "Companies") { id name }
+  companies(viewId: $viewId, filter: $filter, first: 50, after: $after) {
+    edges {
+      node {
+        id
+        name
+        url
+        createdBy { source name teamMember { id avatar } }
+        address
+        accountOwner { id name avatar }
+        icp
+        arr { amount currency }
+        linkedin { url label }
+        twitter { url label }
+        mainContact { id name avatar }
+        employees
+        opportunities(first: 3) { edges { node { id name } } }
+        createdAt
+      }
+    }
+    pageInfo { hasNextPage endCursor }
+  }
+}
+
+mutation CreateCompany($input: CompanyInput!) {
+  createCompany(input: $input) {
+    __typename
+    ... on Company { id name }
+    ... on Error { code message }
+  }
+}
+
+mutation EditCompanyCell($id: ID!, $input: CompanyInput!) {
+  updateCompany(id: $id, input: $input) {
+    __typename
+    ... on Company { id address accountOwner { id name } icp arr { amount currency } }
+    ... on Error { code message }
+  }
+}

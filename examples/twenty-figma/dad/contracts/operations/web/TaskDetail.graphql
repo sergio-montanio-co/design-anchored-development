@@ -1,0 +1,35 @@
+# Screen: Task detail page + Tasks side panel (web) · 102294:450992, 45745:103762
+query TaskDetail($id: ID!) {
+  task(id: $id) {
+    id
+    title
+    body
+    status
+    assignee { id name avatar }
+    companies { id name }
+  }
+}
+
+mutation CompleteTask($id: ID!) {
+  completeTask(id: $id) {
+    __typename
+    ... on Task { id status }
+    ... on Error { code message }
+  }
+}
+
+mutation AssignTask($id: ID!, $assigneeId: ID!) {
+  assignTask(id: $id, assigneeId: $assigneeId) {
+    __typename
+    ... on Task { id assignee { id name } }
+    ... on Error { code message }
+  }
+}
+
+mutation EditTaskBody($id: ID!, $input: TaskInput!) {
+  updateTask(id: $id, input: $input) {
+    __typename
+    ... on Task { id title body }
+    ... on Error { code message }
+  }
+}

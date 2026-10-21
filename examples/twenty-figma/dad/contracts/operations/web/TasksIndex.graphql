@@ -1,0 +1,8 @@
+# Screen: Tasks index (web) · 102294:450532
+# Columns are unknown (Q-030): this fetches only what the domain is sure about.
+query TasksIndex($viewId: ID, $after: String) {
+  tasks(viewId: $viewId, first: 50, after: $after) {
+    edges { node { id title status assignee { id name avatar } } }
+    pageInfo { hasNextPage endCursor }
+  }
+}
